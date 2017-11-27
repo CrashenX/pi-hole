@@ -1,0 +1,37 @@
+kind: Deployment
+apiVersion: apps/v1beta2
+metadata:
+  name: pi-hole-deployment
+  namespace: pi-hole
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pi-hole
+  spec:
+    containers:
+      - name: pi-hole
+        image: crashenx/pi-hole:latest
+        imagePullPolicy: Always
+        imagePullSecrets:
+        - name: docker-registry-creds
+        ports:
+          - name: webadmin
+            containerPort: 80
+          - name: dns
+            containerPort: 53
+            protocol: udp
+          - name: ftl
+            containerPort: 4711
+        resources:
+          limits:
+            memory: "1Gi"
+        livenessProbe:
+          httpGet:
+            path: /pi-hole/version
+            port: 80
+        readinessProbe:
+          httpGet:
+            path: /pi-hole/version
+            port: 80
